@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>デイトレ判断補助ツール</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+
+    <header>
+      <h1>デイトレ判断補助ツール</h1>
+      <p>エントリー可否をスコアで可視化。自動売買なし・判断を整理するためのツールです。</p>
+    </header>
+
+    <!-- ============================================================
+         フォームセクション
+         ============================================================ -->
+    <section id="form-section">
+      <form id="analysis-form" novalidate>
+
+        <!-- 市場セレクター -->
+        <div class="market-toggle" role="group" aria-label="市場選択">
+          <button type="button" class="market-btn active" data-market="jp">日本株（東証）</button>
+          <button type="button" class="market-btn" data-market="us">米国株（NYSE / NASDAQ）</button>
+        </div>
+
+        <!-- 銘柄名 -->
+        <div class="card">
+          <div class="form-group" style="margin-bottom:0">
+            <label for="ticker">
+              銘柄名
+              <span class="optional">（任意）</span>
+            </label>
+            <div class="ticker-row">
+              <input
+                type="text"
+                id="ticker"
+                name="ticker"
+                placeholder="例: 7203（日本株）または AAPL（米国株）"
+                autocomplete="off"
+              />
+              <button type="button" id="fetch-btn" class="btn-fetch">自動取得</button>
+            </div>
+            <div id="fetch-status" class="fetch-status" aria-live="polite"></div>
+          </div>
+        </div>
+
+        <!-- 価格入力 -->
+        <div class="card">
+          <div class="form-group">
+            <label>
+              価格（円）
+              <span class="required">*</span>
+            </label>
+            <div class="price-grid">
+              <div>
+                <label for="currentPrice" style="text-transform:none; letter-spacing:0; font-size:0.75rem;">
+                  現在価格
+                </label>
+                <input
+                  type="number"
+                  id="currentPrice"
+                  name="currentPrice"
+                  placeholder="2,500"
+                  min="1"
+                  step="1"
+                  required
+                />
+              </div>
+              <div>
+                <label for="prevHigh" style="text-transform:none; letter-spacing:0; font-size:0.75rem;">
+                  前日高値
+                </label>
+                <input
+                  type="number"
+                  id="prevHigh"
+                  name="prevHigh"
+                  placeholder="2,600"
+                  min="1"
+                  step="1"
+                  required
+                />
+              </div>
+              <div>
+                <label for="prevLow" style="text-transform:none; letter-spacing:0; font-size:0.75rem;">
+                  前日安値
+                </label>
+                <input
+                  type="number"
+                  id="prevLow"
+                  name="prevLow"
+                  placeholder="2,400"
+                  min="1"
+                  step="1"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- 出来高 -->
+          <div class="form-group" style="margin-bottom:0">
+            <label for="volume">
+              出来高
+              <span class="optional">（任意・株数）</span>
+            </label>
+            <input
+              type="number"
+              id="volume"
+              name="volume"
+              placeholder="1,200,000"
+              min="0"
+              step="1"
+            />
+          </div>
+        </div>
+
+        <!-- 地合い・集中度 -->
+        <div class="card">
+
+          <!-- 地合い -->
+          <div class="form-group">
+            <label for="sentiment">
+              地合い
+              <span class="required">*</span>
+            </label>
+            <select id="sentiment" name="sentiment" required>
+              <option value="good">良い（上昇傾向・強い相場）</option>
+              <option value="normal" selected>普通（方向感なし）</option>
+              <option value="bad">悪い（下落・不安定な相場）</option>
+            </select>
+          </div>
+
+          <!-- 集中度スライダー -->
+          <div class="form-group" style="margin-bottom:0">
+            <label for="focus">
+              集中度
+              <span class="required">*</span>
+            </label>
+            <div class="slider-wrapper">
+              <input
+                type="range"
+                id="focus"
+                name="focus"
+                min="1"
+                max="5"
+                value="3"
+              />
+              <span class="slider-value" id="focus-value">3</span>
+            </div>
+            <div class="slider-labels">
+              <span>1 ─ 最低（眠い・体調不良）</span>
+              <span>5 ─ 最高（万全）</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 送信ボタン -->
+        <button type="submit" class="btn-primary">
+          判断を分析する
+        </button>
+
+      </form>
+    </section>
+
+    <!-- ============================================================
+         結果セクション（送信後に表示）
+         ============================================================ -->
+    <section id="result-section">
+
+      <!-- 1. 大きな判定ボックス -->
+      <div id="judgment-box" class="judgment-box">
+        <!-- JS で描画 -->
+      </div>
+
+      <!-- 2. リスク警告 -->
+      <div id="warnings-section" class="card">
+        <div class="section-title">リスク警告</div>
+        <ul class="warnings-list" id="warnings-container">
+          <!-- JS で描画 -->
+        </ul>
+      </div>
+
+      <!-- 3 & 4. 損切り＋ポジションサイズ -->
+      <div class="card">
+        <div class="section-title">詳細</div>
+
+        <!-- 損切り目安 -->
+        <div class="info-row">
+          <span class="info-label">損切り目安価格</span>
+          <span class="info-value">
+            <span id="stop-loss-value">—</span>
+            <span class="info-sub" id="stop-loss-sub"></span>
+          </span>
+        </div>
+
+        <!-- ポジションサイズ -->
+        <div class="info-row" style="flex-direction:column; align-items:flex-start; gap:0.375rem;">
+          <span class="info-label">推奨ポジションサイズ</span>
+          <span id="position-badge" class="position-badge">—</span>
+          <p class="position-reason" id="position-reason"></p>
+        </div>
+      </div>
+
+      <!-- リセットボタン -->
+      <button id="reset-btn" class="btn-secondary">
+        別の銘柄を分析する
+      </button>
+
+    </section>
+
+    <footer>
+      <p>このツールは判断の整理を補助するものです。投資は自己責任で行ってください。</p>
+    </footer>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

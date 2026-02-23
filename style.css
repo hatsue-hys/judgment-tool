@@ -1,0 +1,541 @@
+/* ============================================================
+   デイトレ判断補助ツール - スタイルシート
+   ダークテーマ＋プロフェッショナルデザイン
+   ============================================================ */
+
+/* --- リセット & 基本設定 --- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* カラーパレット */
+  --bg-primary: #0d1117;
+  --bg-card: #161b22;
+  --bg-card-hover: #1c2230;
+  --border: #30363d;
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
+  --text-muted: #6e7681;
+
+  /* シグナルカラー */
+  --green: #3fb950;
+  --green-dim: #1a3d1f;
+  --yellow: #d29922;
+  --yellow-dim: #3d2e00;
+  --red: #f85149;
+  --red-dim: #3d0f0e;
+
+  /* アクセント */
+  --accent: #58a6ff;
+  --accent-dim: #0d2340;
+
+  /* サイズ */
+  --radius: 8px;
+  --radius-lg: 12px;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans JP',
+               'Hiragino Kaku Gothic ProN', sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+  padding: 1rem;
+}
+
+/* --- レイアウト --- */
+.container {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+header {
+  text-align: center;
+  padding: 2rem 0 1.5rem;
+}
+
+header h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+header p {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin-top: 0.4rem;
+}
+
+/* --- カード --- */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+/* --- フォーム --- */
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+label .required {
+  color: var(--red);
+  margin-left: 2px;
+}
+
+label .optional {
+  color: var(--text-muted);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.75rem;
+  margin-left: 4px;
+}
+
+input[type="text"],
+input[type="number"],
+select {
+  width: 100%;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-size: 1rem;
+  padding: 0.625rem 0.875rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
+}
+
+input::placeholder {
+  color: var(--text-muted);
+}
+
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238b949e' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.875rem center;
+  padding-right: 2.5rem;
+}
+
+select option {
+  background: var(--bg-card);
+}
+
+/* 市場セレクター（セグメントコントロール） */
+.market-toggle {
+  display: flex;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 3px;
+  gap: 2px;
+  margin-bottom: 1rem;
+}
+
+.market-btn {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.market-btn.active {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.market-btn:not(.active):hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+}
+
+/* 銘柄入力行（input + 自動取得ボタン） */
+.ticker-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.ticker-row input {
+  flex: 1;
+}
+
+.btn-fetch {
+  flex-shrink: 0;
+  padding: 0.625rem 1rem;
+  background: var(--accent-dim);
+  color: var(--accent);
+  border: 1px solid rgba(88, 166, 255, 0.3);
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.btn-fetch:hover {
+  background: rgba(88, 166, 255, 0.18);
+}
+
+.btn-fetch:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* フェッチステータスメッセージ */
+.fetch-status {
+  margin-top: 0.4rem;
+  font-size: 0.8125rem;
+  min-height: 1.1rem;
+  line-height: 1.4;
+}
+
+.fetch-status.loading { color: var(--text-muted); }
+.fetch-status.success { color: var(--green); }
+.fetch-status.error   { color: var(--red); }
+
+/* 3列グリッド（価格入力） */
+.price-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.75rem;
+}
+
+/* スライダー */
+.slider-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+input[type="range"] {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border);
+  outline: none;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: 2px solid var(--bg-card);
+  box-shadow: 0 0 0 2px var(--accent);
+  transition: transform 0.1s;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+.slider-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 2rem;
+  text-align: center;
+}
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.375rem;
+}
+
+.slider-labels span {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+}
+
+/* 送信ボタン */
+.btn-primary {
+  display: block;
+  width: 100%;
+  padding: 0.875rem;
+  background: var(--accent);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  letter-spacing: 0.02em;
+}
+
+.btn-primary:hover {
+  opacity: 0.88;
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+/* リセットボタン */
+.btn-secondary {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  margin-top: 0.75rem;
+}
+
+.btn-secondary:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+
+/* --- 結果表示 --- */
+#result-section {
+  display: none;
+}
+
+/* 大きな判定ボックス */
+.judgment-box {
+  border-radius: var(--radius-lg);
+  padding: 2rem 1.5rem;
+  text-align: center;
+  margin-bottom: 1rem;
+  border: 2px solid transparent;
+}
+
+.judgment-box.ok {
+  background: var(--green-dim);
+  border-color: var(--green);
+}
+
+.judgment-box.watch {
+  background: var(--yellow-dim);
+  border-color: var(--yellow);
+}
+
+.judgment-box.ng {
+  background: var(--red-dim);
+  border-color: var(--red);
+}
+
+.judgment-label {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  display: block;
+  margin-bottom: 0.375rem;
+}
+
+.judgment-box.ok .judgment-label { color: var(--green); }
+.judgment-box.watch .judgment-label { color: var(--yellow); }
+.judgment-box.ng .judgment-label { color: var(--red); }
+
+.judgment-ticker {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.judgment-score {
+  display: inline-block;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.06);
+  padding: 0.25rem 0.75rem;
+  border-radius: 100px;
+  margin-top: 0.25rem;
+}
+
+/* リスク警告 */
+.warnings-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.warning-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.warning-item.critical {
+  background: var(--red-dim);
+  border: 1px solid rgba(248, 81, 73, 0.4);
+  color: #ffb3b0;
+}
+
+.warning-item.warning {
+  background: var(--yellow-dim);
+  border: 1px solid rgba(210, 153, 34, 0.4);
+  color: #f0c97a;
+}
+
+.warning-icon {
+  flex-shrink: 0;
+  font-size: 0.9rem;
+  margin-top: 0.05rem;
+}
+
+/* 損切り・ポジション */
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.info-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.info-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-left: 0.5rem;
+  font-weight: 400;
+}
+
+/* ポジションサイズバッジ */
+.position-badge {
+  display: inline-block;
+  padding: 0.25rem 0.875rem;
+  border-radius: 100px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.position-badge.large {
+  background: var(--green-dim);
+  color: var(--green);
+  border: 1px solid rgba(63, 185, 80, 0.4);
+}
+
+.position-badge.medium {
+  background: rgba(88, 166, 255, 0.1);
+  color: var(--accent);
+  border: 1px solid rgba(88, 166, 255, 0.3);
+}
+
+.position-badge.small {
+  background: var(--yellow-dim);
+  color: var(--yellow);
+  border: 1px solid rgba(210, 153, 34, 0.3);
+}
+
+.position-badge.pass {
+  background: rgba(139, 148, 158, 0.1);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+.position-reason {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin-top: 0.375rem;
+}
+
+/* セクションタイトル */
+.section-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.75rem;
+}
+
+/* フッター */
+footer {
+  text-align: center;
+  padding: 2rem 0 1rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* --- レスポンシブ（スマホ対応） --- */
+@media (max-width: 480px) {
+  header h1 {
+    font-size: 1.3rem;
+  }
+
+  .price-grid {
+    grid-template-columns: 1fr;
+    gap: 0.625rem;
+  }
+
+  .card {
+    padding: 1.125rem;
+  }
+
+  .judgment-label {
+    font-size: 1.75rem;
+  }
+}

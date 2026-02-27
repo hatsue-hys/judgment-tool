@@ -151,6 +151,157 @@ select option {
   background: var(--bg-card);
 }
 
+/* 取引タイプ タブ */
+.time-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--border);
+}
+
+.time-tab {
+  flex: 1;
+  padding: 0.625rem 0.75rem;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.time-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.time-tab:not(.active):hover {
+  color: var(--text-primary);
+}
+
+/* 価格ラベル補足 */
+.price-label-note {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  margin-left: 0.5rem;
+}
+
+/* AI ボタン */
+.btn-ai {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  background: rgba(210, 153, 34, 0.12);
+  color: var(--yellow);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border: 1px solid rgba(210, 153, 34, 0.35);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-bottom: 0.75rem;
+}
+
+.btn-ai:hover {
+  background: rgba(210, 153, 34, 0.22);
+}
+
+/* AI クエリ表示ボックス */
+.ai-query-box {
+  margin-bottom: 0.75rem;
+}
+
+.ai-query-hint {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+}
+
+.ai-query-hint a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.ai-query-hint a:hover {
+  text-decoration: underline;
+}
+
+.ai-query-text {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.875rem;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: inherit;
+  line-height: 1.6;
+  margin-bottom: 0.75rem;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+/* R/R バッジ色 */
+.rr-good   { color: var(--green); }
+.rr-ok     { color: var(--yellow); }
+.rr-bad    { color: var(--red); }
+
+/* Alpha Vantage API キー設定エリア */
+.av-setup {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.av-toggle-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  text-decoration: underline dotted;
+}
+
+.av-toggle-btn:hover { color: var(--accent); }
+
+.av-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.4rem;
+  line-height: 1.5;
+}
+
+.av-hint a { color: var(--accent); text-decoration: none; }
+.av-hint a:hover { text-decoration: underline; }
+
+.av-badge {
+  font-size: 0.8125rem;
+  color: var(--green);
+  font-weight: 600;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 0.75rem;
+  text-decoration: underline;
+}
+
+.link-btn:hover { color: var(--red); }
+
 /* 市場セレクター（セグメントコントロール） */
 .market-toggle {
   display: flex;
@@ -382,6 +533,12 @@ input[type="range"]::-webkit-slider-thumb:hover {
   color: var(--text-secondary);
   margin-bottom: 0.5rem;
   font-weight: 500;
+}
+.ticker-company {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+  opacity: 0.8;
 }
 
 .judgment-score {

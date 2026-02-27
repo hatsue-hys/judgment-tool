@@ -26,6 +26,12 @@
           <button type="button" class="market-btn" data-market="us">米国株（NYSE / NASDAQ）</button>
         </div>
 
+        <!-- 取引タイプ タブ -->
+        <div class="time-tabs" role="tablist">
+          <button type="button" class="time-tab active" data-tab="short" role="tab">短期（デイトレ）</button>
+          <button type="button" class="time-tab" data-tab="mid" role="tab">中長期（スイング）</button>
+        </div>
+
         <!-- 銘柄名 -->
         <div class="card">
           <div class="form-group" style="margin-bottom:0">
@@ -41,61 +47,79 @@
                 placeholder="例: 7203（日本株）または AAPL（米国株）"
                 autocomplete="off"
               />
-              <button type="button" id="fetch-btn" class="btn-fetch">自動取得</button>
+              <button type="button" id="fetch-btn" class="btn-fetch">前日データ取得</button>
             </div>
             <div id="fetch-status" class="fetch-status" aria-live="polite"></div>
           </div>
+
+          <!-- Twelve Data API キー設定（日本株対応・推奨） -->
+          <div id="td-setup" class="av-setup">
+            <div id="td-no-key">
+              <button type="button" id="td-toggle" class="av-toggle-btn">APIキーを設定すると日本株も安定取得できます（推奨）</button>
+              <div id="td-form" style="display:none; margin-top:0.625rem">
+                <div class="ticker-row">
+                  <input type="text" id="td-key-input" placeholder="Twelve Data API キーを貼り付け" autocomplete="off" />
+                  <button type="button" id="td-key-save" class="btn-fetch">保存</button>
+                </div>
+                <p class="av-hint">
+                  <a href="https://twelvedata.com/apikey" target="_blank" rel="noopener">twelvedata.com</a>
+                  で無料取得（メールのみ・クレカ不要・日本株対応・800回/日）
+                </p>
+              </div>
+            </div>
+            <div id="td-has-key" style="display:none">
+              <span class="av-badge">Twelve Data 設定済み</span>
+              <button type="button" id="td-key-clear" class="link-btn">解除</button>
+            </div>
+          </div>
+
+          <!-- Alpha Vantage API キー設定（米国株） -->
+          <div id="av-setup" class="av-setup">
+
+            <!-- キー未設定 -->
+            <div id="av-no-key">
+              <button type="button" id="av-toggle" class="av-toggle-btn">Alpha Vantage APIキー（米国株向け・任意）</button>
+              <div id="av-form" style="display:none; margin-top:0.625rem">
+                <div class="ticker-row">
+                  <input type="text" id="av-key-input" placeholder="Alpha Vantage API キーを貼り付け" autocomplete="off" />
+                  <button type="button" id="av-key-save" class="btn-fetch">保存</button>
+                </div>
+                <p class="av-hint">
+                  <a href="https://www.alphavantage.co/support/#api-key" target="_blank" rel="noopener">alphavantage.co</a>
+                  で無料取得（メールのみ・クレカ不要・25回/日）
+                </p>
+              </div>
+            </div>
+
+            <!-- キー設定済み -->
+            <div id="av-has-key" style="display:none">
+              <span class="av-badge">Alpha Vantage 設定済み</span>
+              <button type="button" id="av-key-clear" class="link-btn">解除</button>
+            </div>
+
+          </div>
         </div>
 
-        <!-- 価格入力 -->
+        <!-- 価格入力（共通） -->
         <div class="card">
           <div class="form-group">
             <label>
-              価格（円）
+              価格
               <span class="required">*</span>
+              <span id="price-label-note" class="price-label-note">前日の高値・安値を入力</span>
             </label>
             <div class="price-grid">
               <div>
-                <label for="currentPrice" style="text-transform:none; letter-spacing:0; font-size:0.75rem;">
-                  現在価格
-                </label>
-                <input
-                  type="number"
-                  id="currentPrice"
-                  name="currentPrice"
-                  placeholder="2,500"
-                  min="1"
-                  step="1"
-                  required
-                />
+                <label for="currentPrice" style="text-transform:none; letter-spacing:0; font-size:0.75rem;">現在価格</label>
+                <input type="number" id="currentPrice" name="currentPrice" placeholder="2,500" min="1" step="1" required />
               </div>
               <div>
-                <label for="prevHigh" style="text-transform:none; letter-spacing:0; font-size:0.75rem;">
-                  前日高値
-                </label>
-                <input
-                  type="number"
-                  id="prevHigh"
-                  name="prevHigh"
-                  placeholder="2,600"
-                  min="1"
-                  step="1"
-                  required
-                />
+                <label for="prevHigh" id="label-prevHigh" style="text-transform:none; letter-spacing:0; font-size:0.75rem;">前日高値</label>
+                <input type="number" id="prevHigh" name="prevHigh" placeholder="2,600" min="1" step="1" required />
               </div>
               <div>
-                <label for="prevLow" style="text-transform:none; letter-spacing:0; font-size:0.75rem;">
-                  前日安値
-                </label>
-                <input
-                  type="number"
-                  id="prevLow"
-                  name="prevLow"
-                  placeholder="2,400"
-                  min="1"
-                  step="1"
-                  required
-                />
+                <label for="prevLow" id="label-prevLow" style="text-transform:none; letter-spacing:0; font-size:0.75rem;">前日安値</label>
+                <input type="number" id="prevLow" name="prevLow" placeholder="2,400" min="1" step="1" required />
               </div>
             </div>
           </div>
@@ -106,89 +130,138 @@
               出来高
               <span class="optional">（任意・株数）</span>
             </label>
-            <input
-              type="number"
-              id="volume"
-              name="volume"
-              placeholder="1,200,000"
-              min="0"
-              step="1"
-            />
+            <input type="number" id="volume" name="volume" placeholder="1,200,000" min="0" step="1" />
           </div>
         </div>
 
-        <!-- 地合い・集中度 -->
-        <div class="card">
-
-          <!-- 地合い -->
-          <div class="form-group">
-            <label for="sentiment">
-              地合い
-              <span class="required">*</span>
-            </label>
-            <select id="sentiment" name="sentiment" required>
-              <option value="good">良い（上昇傾向・強い相場）</option>
-              <option value="normal" selected>普通（方向感なし）</option>
-              <option value="bad">悪い（下落・不安定な相場）</option>
-            </select>
-          </div>
-
-          <!-- 集中度スライダー -->
-          <div class="form-group" style="margin-bottom:0">
-            <label for="focus">
-              集中度
-              <span class="required">*</span>
-            </label>
-            <div class="slider-wrapper">
-              <input
-                type="range"
-                id="focus"
-                name="focus"
-                min="1"
-                max="5"
-                value="3"
-              />
-              <span class="slider-value" id="focus-value">3</span>
+        <!-- ────────────────────────────────
+             短期タブ専用フィールド
+             ──────────────────────────────── -->
+        <div id="fields-short" class="tab-content">
+          <div class="card">
+            <!-- 地合い -->
+            <div class="form-group">
+              <label for="sentiment-short">地合い <span class="required">*</span></label>
+              <select id="sentiment-short" name="sentiment">
+                <option value="good">良い（上昇傾向・強い相場）</option>
+                <option value="normal" selected>普通（方向感なし）</option>
+                <option value="bad">悪い（下落・不安定な相場）</option>
+              </select>
             </div>
-            <div class="slider-labels">
-              <span>1 ─ 最低（眠い・体調不良）</span>
-              <span>5 ─ 最高（万全）</span>
+            <!-- 集中度 -->
+            <div class="form-group" style="margin-bottom:0">
+              <label for="focus-short">集中度 <span class="required">*</span></label>
+              <div class="slider-wrapper">
+                <input type="range" id="focus-short" min="1" max="5" value="3" />
+                <span class="slider-value" id="focus-short-value">3</span>
+              </div>
+              <div class="slider-labels">
+                <span>1 ─ 最低（眠い・体調不良）</span>
+                <span>5 ─ 最高（万全）</span>
+              </div>
             </div>
           </div>
+        </div>
 
+        <!-- ────────────────────────────────
+             中長期タブ専用フィールド
+             ──────────────────────────────── -->
+        <div id="fields-mid" class="tab-content" style="display:none">
+          <div class="card">
+
+            <!-- 週足・月足トレンド -->
+            <div class="form-group">
+              <label for="trend">週足・月足のトレンド <span class="required">*</span></label>
+              <select id="trend" name="trend">
+                <option value="up">上昇トレンド（高値・安値切り上げ）</option>
+                <option value="side" selected>横ばい（レンジ相場）</option>
+                <option value="down">下降トレンド（高値・安値切り下げ）</option>
+              </select>
+            </div>
+
+            <!-- 決算日 -->
+            <div class="form-group">
+              <label for="earningsProx">次の決算日まで <span class="required">*</span></label>
+              <select id="earningsProx" name="earningsProx">
+                <option value="far" selected>1ヶ月以上先</option>
+                <option value="month">1ヶ月以内</option>
+                <option value="twoweeks">2週間以内</option>
+                <option value="week">1週間以内（要注意）</option>
+                <option value="unknown">不明</option>
+              </select>
+            </div>
+
+            <!-- セクターモメンタム -->
+            <div class="form-group">
+              <label for="sectorMom">セクターのモメンタム <span class="required">*</span></label>
+              <select id="sectorMom" name="sectorMom">
+                <option value="strong">強い（セクター全体が上昇中）</option>
+                <option value="neutral" selected>普通（方向感なし）</option>
+                <option value="weak">弱い（セクター全体が下落中）</option>
+              </select>
+            </div>
+
+            <!-- 地合い -->
+            <div class="form-group">
+              <label for="sentiment-mid">地合い <span class="required">*</span></label>
+              <select id="sentiment-mid" name="sentiment-mid">
+                <option value="good">良い（上昇傾向・強い相場）</option>
+                <option value="normal" selected>普通（方向感なし）</option>
+                <option value="bad">悪い（下落・不安定な相場）</option>
+              </select>
+            </div>
+
+            <!-- 目標価格 -->
+            <div class="form-group" style="margin-bottom:0">
+              <label for="targetPrice">
+                目標価格（利確ライン）
+                <span class="optional">（任意）</span>
+              </label>
+              <input type="number" id="targetPrice" name="targetPrice" placeholder="3,000" min="1" step="0.01" />
+            </div>
+
+          </div>
+
+          <!-- 集中度 -->
+          <div class="card">
+            <div class="form-group" style="margin-bottom:0">
+              <label for="focus-mid">集中度 <span class="required">*</span></label>
+              <div class="slider-wrapper">
+                <input type="range" id="focus-mid" min="1" max="5" value="3" />
+                <span class="slider-value" id="focus-mid-value">3</span>
+              </div>
+              <div class="slider-labels">
+                <span>1 ─ 最低（眠い・体調不良）</span>
+                <span>5 ─ 最高（万全）</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- 送信ボタン -->
-        <button type="submit" class="btn-primary">
-          判断を分析する
-        </button>
+        <button type="submit" class="btn-primary">判断を分析する</button>
 
       </form>
     </section>
 
     <!-- ============================================================
-         結果セクション（送信後に表示）
+         結果セクション
          ============================================================ -->
     <section id="result-section">
 
       <!-- 1. 大きな判定ボックス -->
-      <div id="judgment-box" class="judgment-box">
-        <!-- JS で描画 -->
-      </div>
+      <div id="judgment-box" class="judgment-box"></div>
 
       <!-- 2. リスク警告 -->
       <div id="warnings-section" class="card">
         <div class="section-title">リスク警告</div>
-        <ul class="warnings-list" id="warnings-container">
-          <!-- JS で描画 -->
-        </ul>
+        <ul class="warnings-list" id="warnings-container"></ul>
       </div>
 
-      <!-- 3 & 4. 損切り＋ポジションサイズ -->
+      <!-- 3 & 4. 損切り・ポジション・R/R -->
       <div class="card">
         <div class="section-title">詳細</div>
 
-        <!-- 損切り目安 -->
         <div class="info-row">
           <span class="info-label">損切り目安価格</span>
           <span class="info-value">
@@ -197,7 +270,15 @@
           </span>
         </div>
 
-        <!-- ポジションサイズ -->
+        <!-- R/R（中長期のみ表示） -->
+        <div class="info-row" id="rr-row" style="display:none">
+          <span class="info-label">リスク・リワード比</span>
+          <span class="info-value">
+            <span id="rr-value">—</span>
+            <span class="info-sub" id="rr-sub"></span>
+          </span>
+        </div>
+
         <div class="info-row" style="flex-direction:column; align-items:flex-start; gap:0.375rem;">
           <span class="info-label">推奨ポジションサイズ</span>
           <span id="position-badge" class="position-badge">—</span>
@@ -205,10 +286,19 @@
         </div>
       </div>
 
+      <!-- Claude に調査依頼ボタン -->
+      <button id="ai-btn" type="button" class="btn-ai">Claude に調査依頼する</button>
+
+      <!-- AI クエリ表示ボックス -->
+      <div id="ai-query-box" class="card ai-query-box" style="display:none">
+        <div class="section-title">生成されたクエリ</div>
+        <p class="ai-query-hint">コピーして <a href="https://claude.ai" target="_blank" rel="noopener">Claude.ai</a> に貼り付けてください</p>
+        <pre id="ai-query-text" class="ai-query-text"></pre>
+        <button id="ai-copy-btn" type="button" class="btn-secondary">クリップボードにコピー &amp; Claude.ai を開く</button>
+      </div>
+
       <!-- リセットボタン -->
-      <button id="reset-btn" class="btn-secondary">
-        別の銘柄を分析する
-      </button>
+      <button id="reset-btn" class="btn-secondary">別の銘柄を分析する</button>
 
     </section>
 
@@ -218,6 +308,6 @@
 
   </div>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=19"></script>
 </body>
 </html>

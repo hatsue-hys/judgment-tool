@@ -134,6 +134,17 @@
           </div>
         </div>
 
+        <!-- 取引方向（短期・中長期 共通） -->
+        <div class="card">
+          <div class="form-group" style="margin-bottom:0">
+            <label>取引方向 <span class="required">*</span></label>
+            <div class="radio-group">
+              <label><input type="radio" name="direction" value="long" checked> ロング（買い）</label>
+              <label><input type="radio" name="direction" value="short"> ショート（売り）</label>
+            </div>
+          </div>
+        </div>
+
         <!-- ────────────────────────────────
              短期タブ専用フィールド
              ──────────────────────────────── -->
@@ -141,7 +152,7 @@
           <div class="card">
             <!-- 地合い -->
             <div class="form-group">
-              <label for="sentiment-short">地合い <span class="required">*</span></label>
+              <label for="sentiment-short">地合い <span class="required">*</span><span class="auto-badge">自動取得</span></label>
               <select id="sentiment-short" name="sentiment">
                 <option value="good">良い（上昇傾向・強い相場）</option>
                 <option value="normal" selected>普通（方向感なし）</option>
@@ -171,7 +182,7 @@
 
             <!-- 週足・月足トレンド -->
             <div class="form-group">
-              <label for="trend">週足・月足のトレンド <span class="required">*</span></label>
+              <label for="trend">週足・月足のトレンド <span class="required">*</span><span class="auto-badge">自動取得</span></label>
               <select id="trend" name="trend">
                 <option value="up">上昇トレンド（高値・安値切り上げ）</option>
                 <option value="side" selected>横ばい（レンジ相場）</option>
@@ -203,7 +214,7 @@
 
             <!-- 地合い -->
             <div class="form-group">
-              <label for="sentiment-mid">地合い <span class="required">*</span></label>
+              <label for="sentiment-mid">地合い <span class="required">*</span><span class="auto-badge">自動取得</span></label>
               <select id="sentiment-mid" name="sentiment-mid">
                 <option value="good">良い（上昇傾向・強い相場）</option>
                 <option value="normal" selected>普通（方向感なし）</option>
@@ -308,6 +319,6 @@
 
   </div>
 
-  <script src="app.js?v=19"></script>
+  <script src="app.js?v=22"></script>
 </body>
 </html>

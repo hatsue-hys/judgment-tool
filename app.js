@@ -22,7 +22,16 @@ function calcFocusScore(focus) {
   return { 1: -2, 2: -1, 3: 0, 4: 1, 5: 2 }[focus] ?? 0;
 }
 
-function calcPricePositionScore(currentPrice, prevHigh, prevLow) {
+function calcPricePositionScore(currentPrice, prevHigh, prevLow, direction = 'long') {
+  if (direction === 'short') {
+    // ショート: 高値付近がエントリー好機、安値割れ・高値超えはリスク
+    if (currentPrice > prevHigh)          return { score: -3, position: 'above_high' };
+    if (currentPrice < prevLow)           return { score: -2, position: 'below_low' };
+    if (currentPrice >= prevHigh * 0.99)  return { score:  1, position: 'near_resistance' };
+    if (currentPrice <= prevLow  * 1.01)  return { score: -1, position: 'near_support' };
+    return { score: 0, position: 'range' };
+  }
+  // ロング（デフォルト）: 安値付近がエントリー好機
   if (currentPrice > prevHigh)          return { score: -2, position: 'above_high' };
   if (currentPrice < prevLow)           return { score: -3, position: 'below_low' };
   if (currentPrice <= prevLow  * 1.01)  return { score:  1, position: 'near_support' };
@@ -652,7 +661,13 @@ async function fetchFromProxy(ticker, market) {
       attempt(`https://api.allorigins.win/raw?url=${p(yhUrl)}`,         'json', 15000),
       attempt(`https://api.codetabs.com/v1/proxy?quest=${p(yhUrl)}`,    'json', 15000),
     ]);
-  } catch (_) {
+  } catch (e) {
+    // 個々のエラーから有用なメッセージを取り出す（銘柄不明など）
+    if (e instanceof AggregateError) {
+      const msgs = [...new Set(e.errors.map(err => err.message))];
+      const dataErr = msgs.find(m => m.includes('銘柄') || m.includes('見つかりません'));
+      if (dataErr) throw new Error(dataErr);
+    }
     throw new Error('プロキシ経由の取得に失敗しました。Twelve Data APIキーを設定すると安定して取得できます。');
   }
 }
@@ -663,12 +678,16 @@ async function fetchFromProxy(ticker, market) {
    ============================================================ */
 
 function analyzeEntry(inputs) {
-  const { ticker, currentPrice, prevHigh, prevLow, volume, sentiment, focus, market } = inputs;
+  const { ticker, currentPrice, prevHigh, prevLow, volume, sentiment, focus, market, direction = 'long' } = inputs;
   const marketScore = calcMarketScore(sentiment);
   const focusScore  = calcFocusScore(focus);
-  const { score: priceScore, position } = calcPricePositionScore(currentPrice, prevHigh, prevLow);
+  const { score: priceScore, position } = calcPricePositionScore(currentPrice, prevHigh, prevLow, direction);
   const totalScore   = marketScore + focusScore + priceScore;
   const entrySignal  = calcEntrySignal({ totalScore, focus, sentiment });
+  // Step4: エントリーOK の文言に方向を付加
+  if (entrySignal.signal === 'ok') {
+    entrySignal.label = direction === 'short' ? 'ショート エントリーOK' : 'ロング エントリーOK';
+  }
   const stopLoss     = calcStopLoss(currentPrice, prevLow, market);
   const lossPercent  = ((currentPrice - stopLoss) / currentPrice * 100).toFixed(2);
   const positionSize = calcPositionSize({ score: totalScore, currentPrice, stopLoss, focus, sentiment });
@@ -677,15 +696,19 @@ function analyzeEntry(inputs) {
 }
 
 function analyzeEntryMid(inputs) {
-  const { ticker, currentPrice, prevHigh, prevLow, volume, sentiment, focus, trend, earningsProx, sectorMom, targetPrice, market } = inputs;
+  const { ticker, currentPrice, prevHigh, prevLow, volume, sentiment, focus, trend, earningsProx, sectorMom, targetPrice, market, direction = 'long' } = inputs;
   const trendScore   = calcTrendScore(trend);
   const earningsScore = calcEarningsScore(earningsProx);
   const sectorScore  = calcSectorMomentumScore(sectorMom);
   const marketScore  = calcMarketScore(sentiment);
   const focusScore   = calcFocusScore(focus);
-  const { score: priceScore } = calcPricePositionScore(currentPrice, prevHigh, prevLow);
+  const { score: priceScore } = calcPricePositionScore(currentPrice, prevHigh, prevLow, direction);
   const totalScore   = trendScore + earningsScore + sectorScore + marketScore + focusScore + priceScore;
   const entrySignal  = calcEntrySignalMid({ totalScore, focus, earningsProx });
+  // Step4: エントリーOK の文言に方向を付加
+  if (entrySignal.signal === 'ok') {
+    entrySignal.label = direction === 'short' ? 'ショート エントリーOK' : 'ロング エントリーOK';
+  }
   const stopLoss     = calcStopLoss(currentPrice, prevLow, market);
   const lossPercent  = ((currentPrice - stopLoss) / currentPrice * 100).toFixed(2);
   const rr           = calcRR(currentPrice, stopLoss, targetPrice);
@@ -983,11 +1006,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (prevLow <= 0 || prevHigh <= 0 || currentPrice <= 0)         { alert('価格は正の値を入力してください。'); return; }
     if (prevHigh < prevLow)                                          { alert('前日高値は前日安値より大きい値を入力してください。'); return; }
 
+    const direction = document.querySelector('[name="direction"]:checked')?.value || 'long';
+
     let result;
     if (currentTab === 'short') {
       const sentiment = document.getElementById('sentiment-short').value;
       const focus     = parseInt(sliderShort.value, 10);
-      result = analyzeEntry({ ticker, currentPrice, prevHigh, prevLow, volume, sentiment, focus, market: currentMarket });
+      result = analyzeEntry({ ticker, currentPrice, prevHigh, prevLow, volume, sentiment, focus, market: currentMarket, direction });
     } else {
       const trend       = form.trend.value;
       const earningsProx = form.earningsProx.value;
@@ -995,7 +1020,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const sentiment   = document.getElementById('sentiment-mid').value;
       const focus       = parseInt(sliderMid.value, 10);
       const targetPrice = form.targetPrice.value !== '' ? parseFloat(form.targetPrice.value) : null;
-      result = analyzeEntryMid({ ticker, currentPrice, prevHigh, prevLow, volume, sentiment, focus, trend, earningsProx, sectorMom, targetPrice, market: currentMarket });
+      result = analyzeEntryMid({ ticker, currentPrice, prevHigh, prevLow, volume, sentiment, focus, trend, earningsProx, sectorMom, targetPrice, market: currentMarket, direction });
     }
 
     // AI クエリ生成用にフォーム値を保存

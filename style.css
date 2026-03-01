@@ -104,6 +104,15 @@ label .required {
   margin-left: 2px;
 }
 
+label .auto-badge {
+  color: var(--accent);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  margin-left: 4px;
+}
+
 label .optional {
   color: var(--text-muted);
   font-weight: 400;
